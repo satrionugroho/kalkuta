@@ -38,7 +38,7 @@ func New(conf *config.Database) (ConnectionInterface, error) {
 	var d *gorm.DB
 	var err error
 
-	if d, err = gorm.Open(postgres.Open(conf.DSN), &gorm.Config{
+	if d, err = gorm.Open(postgres.Open(conf.DSN()), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.LogLevel(conf.LogLevel())),
 	}); err != nil {
 		return &Conn{}, err

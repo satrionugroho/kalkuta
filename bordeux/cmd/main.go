@@ -23,7 +23,7 @@ func main() {
 	var conf *config.Config
 	var file string
 
-	flag.StringVar(&file, "config", "./config.yaml", "your config file")
+	flag.StringVar(&file, "config", "./config.yml", "your config file")
 	flag.Parse()
 
 	if conf, err = config.Load(file); err != nil {

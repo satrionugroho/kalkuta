@@ -43,13 +43,7 @@ defmodule Vienna.MixProject do
         steps: [:assemble, &Bakeware.assemble/1],
         bakeware: [
           compression_level: 19,
-        ],
-        burrito: [
-          targets: [
-            macos: [os: :darwin, cpu: :aarch64, custom_erts: "erts.tar.gz"],
-            linux: [os: :linux, cpu: :x86_64],
-            windows: [os: :windows, cpu: :x86_64]
-          ]
+          start_command: "start_iex",
         ]
       ]
     ]

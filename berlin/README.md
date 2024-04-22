@@ -2,9 +2,23 @@
 
 Berlin is application to manage user with simple method. Just `simple` user management do not expect anything
 
+
+## Certificate
+
+To generate the certificate just follow these command
+1. Create private key using openssl
+```bash
+openssl genrsa -out privateKey.pem 2048
+```
+
+2. By using privateKey.pem to create public key (optional)
+```bash
+openssl rsa -in privateKey.pem -pubout -out publicKey.pem
+```
+
 ## Build
 
-To build this application you can choose with docker or without docker
+Before you build this application, generate the certificate first by following the instructions in [Certificate](#certificate) section. To build this application you can choose with docker or without docker
 
 ### Without  docker
 To build without docker just follow this step.

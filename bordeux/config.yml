@@ -1,10 +1,11 @@
 database:
-  hostname: localhost
-  username: legolas
-  name: bordeux_dev
+  name: $DATABASE_NAME
+  hostname: $DATABASE_HOSTNAME
+  username: $DATABASE_USERNAME
+  password: $DATABASE_PASSWORD
 
 server:
   prefork: false
   port: 3000
   compression: 2
-  profiling: true
+  profiling: false

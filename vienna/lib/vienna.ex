@@ -1,5 +1,8 @@
 defmodule Vienna do
   use Bakeware.Script
+
+  require Logger
+
   @moduledoc """
   Documentation for `Vienna`.
   """
@@ -13,53 +16,58 @@ defmodule Vienna do
       )
 
     _ = configure_environment!()
-    {:ok, _} = Vienna.Repo.start_link()
+    case Vienna.Repo.start_link() do
+      {:ok, _} -> Logger.info("connected to database")
+      err -> Logger.error("cannot connect to database with error #{inspect err}")
+    end
 
     case List.first(types) do
       "up" -> migrate_up(main)
       "down" -> migrate_down(main)
-      cmd -> :logger.notice("command #{inspect cmd} not supported")
+      nil -> Logger.alert("must specify the command `up` or `down`")
+      cmd -> 
+        Logger.info("command #{inspect cmd} not supported")
     end
 
     :ok
   end
 
   defp migrate_up(opts) do
-    :logger.notice("Migrate database")
-    path = decide_migration_path(opts)
-    :logger.notice("migrate database at #{inspect path}")
+    Logger.info("Migrate database")
+    {ch, path} = decide_migration_path(opts)
+    Logger.info("migrate database at #{inspect path}")
 
-    case File.exists?(path) do
+    case File.exists?(path) && ch == :ok do
       true ->
-        :logger.notice("running migration")
+        Logger.info("running migration")
         try do
           Ecto.Migrator.run(Vienna.Repo, path, :up, [all: true])
         rescue
-          err -> :logger.warning("error occured, message #{inspect err}")
+          err -> Logger.warning("error occured, message #{inspect err}")
         end
-        :logger.notice("migration done")
+        Logger.info("migration done")
       _ ->
-        :logger.notice("migrations file not present at #{inspect path}")
+        Logger.alert("migrations file not present at #{inspect path}")
     end
   end
 
   defp migrate_down(opts) do
-    :logger.notice("Rollback database")
-    path = decide_migration_path(opts)
+    Logger.info("Rollback database")
+    {ch, path} = decide_migration_path(opts)
     step = decide_migration_step(opts)
-    :logger.notice("rollback database at #{inspect path} with step=#{inspect step}")
+    Logger.info("rollback database at #{inspect path} with step=#{inspect step}")
 
-    case File.exists?(path) do
+    case File.exists?(path) && ch == :ok do
       true -> 
-        :logger.notice("running rollback")
+        Logger.info("running rollback")
         try do
           Ecto.Migrator.run(Vienna.Repo, path, :down, [step: step])
         rescue
-          err -> :logger.warning("error occured, message #{inspect err}")
+          err -> Logger.warning("error occured, message #{inspect err}")
         end
-        :logger.notice("rollback done")
+        Logger.info("rollback done")
       _ ->
-        :logger.notice("migrations file not present at #{inspect path}")
+        Logger.alert("migrations file not present at #{inspect path}")
     end
   end
 
@@ -68,6 +76,27 @@ defmodule Vienna do
     |> case do
       nil -> default_migration_path()
       file -> file |> Path.absname()
+    end
+    |> then(fn f ->
+      File.ls(f)
+      |> case do
+        {:ok, files} -> check_exs_file(f, files)
+        err -> 
+          Logger.alert("error while reading folder, message #{inspect err}")
+          {:error, f}
+      end
+    end)
+  end
+
+  defp check_exs_file(folder, files) do
+    Enum.filter(files, &Kernel.==(Path.extname(&1), ".exs"))
+    |> case do
+      [] -> 
+        Logger.alert("chosen folder `#{folder}` not contains .exs files")
+        {:error, folder}
+      _ -> 
+        Logger.info("Found .exs migration files")
+        {:ok, folder}
     end
   end
 
@@ -85,7 +114,7 @@ defmodule Vienna do
     |> Path.basename()
     |> Path.absname()
     |> Kernel.<>("/repo/migrations")
-    |> tap(fn f -> :logger.notice("using default migration file at #{inspect f}") end)
+    |> tap(fn f -> Logger.info("using default migration file at #{inspect f}") end)
   end
 
   defp configure_environment! do

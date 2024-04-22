@@ -39,11 +39,12 @@ func Load(file string) (*Config, error) {
 	config.Server.Default()
 	config.Database.Default()
 
+	config.Database.EvalValue()
+
 	return &config, nil
 }
 
 type Database struct {
-	DSN      string `yaml:"dsn"`
 	Name     string `yaml:"name"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
@@ -65,6 +66,14 @@ func (d *Database) LogLevel() int {
 	}
 }
 
+func (d *Database) DSN() string {
+	if d.Password == "" {
+		return fmt.Sprintf("host=%s user=%s dbname=%s port=%d sslmode=disable", d.Hostname, d.Username, d.Name, d.Port)
+	} else {
+		return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", d.Hostname, d.Username, d.Password, d.Name, d.Port)
+	}
+}
+
 func (d *Database) Default() {
 	if d.Port == 0 {
 		d.Port = 5432
@@ -79,20 +88,28 @@ func (d *Database) Default() {
 	}
 
 	if d.Name == "" {
-		d.Name = "sawitpro_dev"
+		d.Name = "bordeux_dev"
 	}
 
 	if d.Log == "" {
 		d.Log = "info"
 	}
+}
 
-	if d.DSN == "" {
-		if d.Password == "" {
-			d.DSN = fmt.Sprintf("host=%s user=%s dbname=%s port=%d sslmode=disable", d.Hostname, d.Username, d.Name, d.Port)
-		} else {
-			d.DSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", d.Hostname, d.Username, d.Password, d.Name, d.Port)
-		}
+func (d *Database) EvalValue() {
+	d.Name = d.FetchFromEnv(d.Name)
+	d.Password = d.FetchFromEnv(d.Password)
+	d.Hostname = d.FetchFromEnv(d.Hostname)
+	d.Username = d.FetchFromEnv(d.Username)
+}
+
+func (d *Database) FetchFromEnv(name string) string {
+	if strings.HasPrefix(name, "$") {
+		n := strings.Replace(name, "$", "", 1)
+		return os.Getenv(n)
 	}
+
+	return name
 }
 
 type Server struct {
