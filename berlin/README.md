@@ -1,18 +1,35 @@
 # Berlin
 
-To start your Phoenix server:
+Berlin is application to manage user with simple method. Just `simple` user management do not expect anything
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Build
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+To build this application you can choose with docker or without docker
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+### Without  docker
+To build without docker just follow this step.
 
-## Learn more
+1. Run `mix local.hex --force` to initate the hex folder
+2. Run `mix local.rebar --force` to initate the rebar folder
+3. Run `MIX_ENV=prod mix deps.get` to get production dependencies
+4. Run `mix compile` to compile all the dependencies
+5. Run `mix release --force --overwrite` to build and remove previous build
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+
+### Docker
+
+To build using docker just simply using command
+
+```bash
+docker build -t berlin/v1.0.0 .
+```
+
+or build using docker-compose
+
+```bash
+docker-compose up -d
+```
+
+## Develop
+To develop this application by cloning and running build step to ensure the cloned code is perform well. And to develop you must add the test case in `test` folder. And you can run the application by using normal phoenix command
+

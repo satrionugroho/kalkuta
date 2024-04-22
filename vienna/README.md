@@ -1,21 +1,25 @@
 # Vienna
 
-**TODO: Add description**
+Vienna is a standalone database migration scripts. Database migration script can be written in Elixir lang. no need to create SQL
 
-## Installation
+## Build
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `vienna` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:vienna, "~> 0.1.0"}
-  ]
-end
+To build this application just simply type
+```bash
+mix do deps.get, compile && mix release
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/vienna>.
+## Running
+After build the application you can run the application located in rel folder and must specify the migration folder
 
+```bash
+vienna -f /path/to/migration/folder
+```
+
+### Running options
+- -f / --file : must be located folder
+- -s / --step : step of migration. negative means rollback and positive means migrate, default: `all`
+- --force : force the migration step
+
+## Migration file
+Migration file can check the reference of Ecto
