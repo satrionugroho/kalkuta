@@ -1,0 +1,9 @@
+.DS_Store
+/.devenv
+/.direnv
+/.golang
+/.mix
+/berlin/certs
+_build
+deps
+erl_crash.dump

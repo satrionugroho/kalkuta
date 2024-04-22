@@ -1,0 +1,33 @@
+database:
+  username: $DATABASE_USERNAME # database username
+  hostname: $DATABASE_HOSTNAME # database host
+  database: $DATABASE_NAME # database name
+  password: $DATABASE_PASSWORD # database password
+  pool_size: 10 # database pools
+
+cache:
+  model: inclusive
+  levels:
+    - type: local
+      gc_interval: 600_000
+      max_size: 1_000_000
+
+    # - type: redis
+    #   gc_interval: 600_000
+    #   max_size: 1_000_000
+  # redis:
+  #   host: 127.0.0.1
+  #   port: 6379
+
+endpoint:
+  secret_key_base: $SECRET_KEY_BASE
+  server: true
+  url:
+    host: localhost
+
+  http:
+    ip: 0.0.0.0
+    port: 4000
+
+encryption:
+  hash: interactive

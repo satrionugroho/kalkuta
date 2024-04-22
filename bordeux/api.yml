@@ -1,0 +1,255 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Task Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /tasks:
+    post:
+      summary: This path used to create a task
+      operationId: create
+      parameters:
+        - name: name
+          in: body
+          required: true
+          schema:
+            type: string
+        - name: deadline
+          in: body
+          schema:
+            type: string
+        - name: ancestor_id
+          in: body
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succeed return
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - $ref: "#/components/schemas/TaskModel"
+        '403':
+          description: Not forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      summary: This path used to get list of task
+      operationId: listTask
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succeed to get list of task
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/TaskResponseList"
+                  - $ref: "#/components/schemas/ListTask"
+  /tasks/{id}:
+    post:
+      summary: This path used to update a task
+      operationId: UpdateTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: name
+          in: body
+          required: true
+          schema:
+            type: string
+        - name: description
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succeed return
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - $ref: "#/components/schemas/TaskModel"
+        '403':
+          description: Not forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /tasks/{id}/resolve:
+    post:
+      summary: This path used to resolve a task
+      operationId: ResolveTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Succeed return
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - $ref: "#/components/schemas/TaskModel"
+        '403':
+          description: Not forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    TaskModel:
+      type: object
+      required:
+        - id
+        - name
+        - user_id
+        - type
+        - inserted_at 
+        - updated_at 
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        description:
+          type: string
+          x-oapi-codegen-extra-tags:
+            json: description
+        ancestor_id:
+          type: string
+          format: uuid
+          x-oapi-codegen-extra-tags:
+            json: ancestor_id
+        deadline:
+          type: string
+          format: datetime
+          x-go-type: time.Time
+          x-oapi-codegen-extra-tags:
+            json: deadline
+        resolved_at:
+          type: string
+          format: datetime
+          x-go-type: time.Time
+          x-oapi-codegen-extra-tags:
+            json: resolved_at
+        inserted_at:
+          type: string
+          format: datetime
+          x-go-type: time.Time
+        updated_at:
+          type: string
+          format: datetime
+          x-go-type: time.Time
+    ListTask:
+      type: object
+      required:
+        - id
+        - name
+        - user_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        description:
+          type: string
+          x-oapi-codegen-extra-tags:
+            json: description
+        ancestor_id:
+          type: string
+          format: uuid
+          x-oapi-codegen-extra-tags:
+            json: ancestor_id
+        deadline:
+          type: string
+          format: datetime
+          x-oapi-codegen-extra-tags:
+            json: deadline
+    TaskResponseList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ListTask"
+    MetaResponse:
+      type: object
+      required:
+        - limit
+        - page
+        - count
+        - has_next
+        - has_prev
+      properties:
+        limit:
+          type: integer
+          format: uint8
+        page:
+          type: integer
+          format: uint8
+        count:
+          type: integer
+          format: uint8
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+    SuccessResponse:
+      type: object
+      required:
+        - meta
+        - data
+      properties:
+        meta:
+          $ref: "#/components/schemas/MetaResponse"
+        data:
+          type: object
+          x-go-type: interface{}
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string

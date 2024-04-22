@@ -1,0 +1,42 @@
+# version docker-compose
+version: '3'
+
+# list services
+services:
+  app:
+    build:
+      context: .
+    environment:
+      DATABASE_USERNAME: postgres
+      DATABASE_HOSTNAME: database
+      DATABASE_PASSWORD: verystrongpassword
+      DATABASE_NAME: berlin
+      SECRET_KEY_BASE: 2ukbtoSoISmuZ+0XSt3pwq7Va1NqXYa1snuJ8qEIFaNsqbCCItzlZM3log6qh2W3
+    configs:
+      - source: app_config
+        target: /etc/berlin/config.yml
+    volumes:
+      - type: bind
+        source: ./certs
+        target: /etc/berlin/certs
+    ports:
+      - '4000:4000'
+    depends_on:
+      - database
+
+  database:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: verystrongpassword
+      POSTGRES_DB: berlin
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
+configs:
+  app_config:
+    file: ./config.yml
